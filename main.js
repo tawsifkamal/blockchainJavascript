@@ -1,118 +1,27 @@
-const SHA256 = require('crypto-js/sha256');
+const {Blockchain, Transaction} = require('./blockchain');
+const EC = require('elliptic').ec;
+const ec = new EC('secp256k1');
 
+const tawsifCoin = new Blockchain(4);
 
-class Block {
-    constructor(timestamp, transactions, previousHash = '') {
-        this.timestamp = timestamp;
-        this.transactions = transactions;
-        this.previousHash = previousHash;
-        this.hash = this.calculateHash();
-        this.nonce = 0;
-    }
-    
-    /**
-     * Method calculates hash of current block
-     */
-    calculateHash() {
-        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data) + this.nonce).toString();       
-    }
-}
+const privateKey = "540281221217ee14d88849409832ae1a596b7d157aaae677b5f1fb0f86e6b6fb";
+const keyPair = ec.keyFromPrivate(privateKey);
+const fakeKeyPair = ec.keyFromPublic('04d8e01e8babafbb6cdc51b79e066bbf706a4e0c18de2554cb350ff2c6630729294a816c7812e55890801e3652921d96e398b1540244e73685b34d6d4475454ec2', 'hex')
+const myAddress = keyPair.getPublic('hex');
 
-class Transaction {
-    constructor(fromAddress, toAddress, amount) {
-        this.fromAddress = fromAddress;
-        this.toAddress = toAddress;
-        this.amount = amount;
-    }
-}
+const transaction = new Transaction(myAddress, "dummy address", 40);
+transaction.signTransaction(keyPair);
+tawsifCoin.addTransaction(transaction);
 
-class Blockchain {
-    constructor(difficulty) {
-        this.chain = [this.createGenesisBlock()];
-        this.difficulty = difficulty;
-        this.miningReward = 100;
-        this.pendingTransactions = [];
-    }
+const newTransaction = new Transaction(myAddress, "another Dummy address", 50);
+newTransaction.signTransaction(keyPair);
+tawsifCoin.addTransaction(newTransaction);
 
-    createGenesisBlock() {
-        return new Block("01/01/2022", new Transaction(null, null, 0), "0");
-    }
+tawsifCoin.mineBlock(myAddress);
 
-    getLatestBlock() {
-        return this.chain[this.chain.length - 1];
-    }
+console.log(tawsifCoin.chain[1].transactions[0].amount = 500);
+console.log(tawsifCoin.chain[1].transactions[0].isValid());
+console.log(tawsifCoin.chain[1].transactions[1].isValid());
 
-    mineBlock(minerRewardAddress) {
-        const newBlock = new Block(Date.now(), this.pendingTransactions, this.getLatestBlock.hash);
-        console.log("mining Block...")
-        // use the set previousHash in order to calculate the new block hash
-        while (newBlock.hash.substring(0, this.difficulty) !== new Array(this.difficulty).fill(0).join("")) {
-            // the nonce value only changes when trying to add a new block to the blockchain
-            // it stays constant when trying to recalculate hash (so verifying will not be a problem)
-            newBlock.nonce++;
-            newBlock.hash = newBlock.calculateHash();
-        }
-
-        // add block to the end of the chain
-        this.chain.push(newBlock);
-        this.pendingTransactions = [
-            new Transaction(null, minerRewardAddress, this.miningReward)
-        ]
-        console.log("block added");
-
-    }
-
-    createTransaction(fromAddress, toAddress, amount) {
-        const transaction = new Transaction(fromAddress, toAddress, amount);
-        this.pendingTransactions.push(transaction);
-    }
-
-    getBalance(balanceAddress) {
-        let balance = 0;
-        for (let i = 0; i < this.chain.length; i++) {
-            for (let x = 0; x < this.chain[i].transactions.length; x++) {
-                const transaction = this.chain[i].transactions[x];
-                if (transaction.fromAddress === balanceAddress) {
-                    balance -= transaction.amount;
-                } else if (transaction.toAddress === balanceAddress) {
-                    balance += transaction.amount;
-                }
-            }
-        }
-        
-        return balance;
-    }
-
-    isChainValid() {
-        for (let i = 1; i < this.chain.length; i++) {
-            const currentBlock = this.chain[i];
-            const previousBlock = this.chain[i - 1];
-
-            if (currentBlock.hash.substring(0, this.difficulty) !== new Array(this.difficulty).fill(0).join("")) {
-                return false;
-            }
-            // If the data is tampered with, and hash is NOT updated, this will fail
-            if (currentBlock.hash !== currentBlock.calculateHash()) {
-                return false;
-            }
-
-            if (currentBlock.previousHash !== previousBlock.hash) {
-
-                return false;
-            }
-        }
-
-        return true;
-    }
-}
-
-
-const tawsifCoin = new Blockchain(2);
-tawsifCoin.createTransaction("tawsif", "nabeel", 100);
-tawsifCoin.createTransaction("nabeel", "tawsif", 50);
-
-
-tawsifCoin.mineBlock("ZeyadTheMiner");
-tawsifCoin.mineBlock("ZeyadTheMiner");
-const tawsifsBalance = tawsifCoin.getBalance("ZeyadTheMiner");
-console.log(tawsifsBalance);
+const myBalance = tawsifCoin.getBalance(myAddress);
+console.log(myBalance);
