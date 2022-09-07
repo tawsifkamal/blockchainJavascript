@@ -13,11 +13,11 @@ export const createUser = async (name) => {
 };
 
 export const loginUser = async (name, privateKey) => {
-  let user = await User.findOne({username, privateKey});
-  if (user.length === 0) {
+  let user = await User.findOne({name, privateKey});
+  if (!user) {
     return null;
   } else {
-    return user[0];
+    return user;
   }
 }
 

@@ -13,7 +13,7 @@ import {
   Container,
   Link,
 } from "@chakra-ui/react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/Navbar/Navbar";
 import { Formik, Form, Field } from "formik";
 import axios from "axios";
 

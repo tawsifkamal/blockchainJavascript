@@ -16,51 +16,50 @@ import {
   AccordionButton,
 } from "@chakra-ui/react";
 
-import Block from "../components/Block/Block";
+import BlockComponent from "../components/Block/Block";
 import TransactionsTable from "../components/TransactionsTable/TransactionsTable";
 import axios from "axios";
 import React, { FC, useState } from "react";
-import Transaction from "../lib/models/Transaction";
-import BlockType from "../lib/models/Block";
-import Navbar from "../components/Navbar";
-import UsersTable from '../components/UsersTable/UsersTable';
+import Navbar from "../components/Navbar/Navbar";
+import UsersTable from "../components/UsersTable/UsersTable";
+import { Transaction, Block, Blockchain, User } from "../lib/Interfaces";
+import { useAuthContext } from "../lib/contexts/authContext";
 
-const Main: FC<any> = ({ tawsifCoin, users }: any) => {
-  const [publicKey, setPublicKey] = useState(null);
-  const [privateKey, setPrivateKey] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [name, setName] = useState(null);
-  const [pendingTransactions, setPendingTransactions] = useState([]);
-  const [blockchain, setBlockchain] = useState(tawsifCoin.chain);
+interface MainProps {
+  tawsifCoin: Blockchain;
+  usersFromFetchCall: User[];
+}
 
-  const createTransaction = async () => {
-    try {
-      const body = {
-        privateKey,
-        transactionDetails: {
-          fromAddress: publicKey,
-          toAddress: "broskiTf",
-          amount: 100,
-        },
-      };
+const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
+  const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>(
+    []
+  );
+  const [blockchain, setBlockchain] = useState<Block[]>(tawsifCoin.chain);
+  const [users, setUsers] = useState<User[]>(usersFromFetchCall || []);
 
-      const response = await (
-        await axios.post("http://localhost:3000/api/transaction", body)
-      ).data;
+  const { isLoggedIn, publicKey, name, logout, signUpOnOpen, loginOnOpen } =
+    useAuthContext();
 
-      setPendingTransactions(response.pendingTransactions);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const createTransaction = async () => {
+  //   try {
+  //     const body = {
+  //       privateKey,
+  //       transactionDetails: {
+  //         fromAddress: publicKey,
+  //         toAddress: "broskiTf",
+  //         amount: 100,
+  //       },
+  //     };
 
+  //     const response = await (
+  //       await axios.post("http://localhost:3000/api/transaction", body)
+  //     ).data;
 
-  const resetKey = async () => {
-    setIsLoggedIn(false);
-    setPrivateKey(null);
-    setPublicKey(null);
-    setName(null);
-  };
+  //     setPendingTransactions(response.pendingTransactions);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const mineBlock = async () => {
     try {
@@ -81,29 +80,25 @@ const Main: FC<any> = ({ tawsifCoin, users }: any) => {
 
   return (
     <Container maxWidth="container.xl" py={10}>
-      <Navbar
-        isLoggedIn={isLoggedIn}
-        setIsLoggedIn={setIsLoggedIn}
-        publicKey={publicKey}
-        setPublicKey={setPublicKey}
-        privateKey={privateKey}
-        setPrivateKey={setPrivateKey}
-        name={name}
-        setName={setName}
-        resetKey={resetKey}
-      />
+      <Navbar setUsers={setUsers} users={users}>
+        {!isLoggedIn ? (
+          <Box>
+            <Button onClick={signUpOnOpen}>Sign Up</Button>
+            <Button onClick={loginOnOpen}>Login</Button>
+          </Box>
+        ) : (
+          <Button onClick={logout}>Logout</Button>
+        )}
+      </Navbar>
 
-      {publicKey && privateKey && (
-        <Button onClick={createTransaction}>Create Transaction</Button>
-      )}
+      {isLoggedIn && <Button>Create Transaction</Button>}
 
       <Text>Public Key: {publicKey}</Text>
-      <Text>Private Key: {privateKey}</Text>
       <Text>Name : {name}</Text>
       <Grid templateColumns="repeat(5, 1fr)" gap={3}>
         {blockchain.map((block: any, index: number) => {
           return (
-            <Block
+            <BlockComponent
               hash={block.hash}
               previousHash={block.previousHash}
               nonce={block.nonce}

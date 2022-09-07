@@ -1,18 +1,15 @@
-import { Table, Thead, Tr, Th, Tbody, Td } from '@chakra-ui/react';
-import {FC} from 'react';
-
-
-interface Transaction {
-    fromAddress: string | null;
-    toAddress: string;
-    amount: number;
-}
+import { Table, Thead, Tr, Th, Tbody, Td } from "@chakra-ui/react";
+import { FC } from "react";
+import { Transaction } from "../../lib/Interfaces";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
 }
 
-const TransactionsTable : FC<TransactionsTableProps> = ({transactions, ...props}: TransactionsTableProps) => {
+const TransactionsTable: FC<TransactionsTableProps> = ({
+  transactions,
+  ...props
+}: TransactionsTableProps) => {
   return (
     <Table {...props}>
       <Thead>
@@ -34,8 +31,7 @@ const TransactionsTable : FC<TransactionsTableProps> = ({transactions, ...props}
         })}
       </Tbody>
     </Table>
-  )
-}
-
+  );
+};
 
 export default TransactionsTable;
