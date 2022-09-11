@@ -1,14 +1,17 @@
-const Blockchain = require("../../lib/models/Blockchain");
+const Blockchain = require("../models/Blockchain");
+import { createUser } from "./user";
 
 export const getBlockchain = async () => {
   let tawsifCoin;
-  tawsifCoin = await Blockchain.find({});
+  tawsifCoin = await Blockchain.findOne({ identifier: "tawsifCoin" });
 
-  if (tawsifCoin.length === 0) {
+  if (!tawsifCoin) {
+    const tawsifUser = await createUser("Tawsif");
     tawsifCoin = await Blockchain.create({});
-    return tawsifCoin;
+    tawsifCoin.createGenesisBlock(tawsifUser);
+    return tawsifCoin.save();
   } else {
-    return tawsifCoin[0];
+    return tawsifCoin;
   }
 };
 

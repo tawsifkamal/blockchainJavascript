@@ -45,11 +45,11 @@ const SignUpModal: FC<SignUpModalProps> = ({
           <Field name="name" validate={validateInput}>
             {({ field, form }: any) => (
               <FormControl
-                isInvalid={form.errors.username && form.touched.username}
+                isInvalid={form.errors.name && form.touched.name}
               >
                 <FormLabel>Name</FormLabel>
                 <Input {...field} placeholder="name" />
-                <FormErrorMessage>{form.errors.username}</FormErrorMessage>
+                <FormErrorMessage>{form.errors.name}</FormErrorMessage>
               </FormControl>
             )}
           </Field>

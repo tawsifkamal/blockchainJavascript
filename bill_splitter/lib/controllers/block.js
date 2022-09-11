@@ -1,7 +1,7 @@
 const Blockchain = require('../models/Blockchain');
 
-export const mineBlock = async (minerAddress) => {
+export const mineBlock = async () => {
   const tawsifCoin = await Blockchain.findOne({identifier: "tawsifCoin"});
-  tawsifCoin.mineBlock(minerAddress);
+  tawsifCoin.mineBlock();
   return tawsifCoin.save();
 }

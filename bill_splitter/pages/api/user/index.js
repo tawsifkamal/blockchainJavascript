@@ -1,9 +1,8 @@
-const {
+import {
   createUser,
   deleteUser,
-  loginUser,
   getAllUsers,
-} = require("../../../lib/controllers/user");
+} from "../../../lib/controllers/user";
 import dbConnect from "../../../lib/utils/dbConnect";
 
 export default async function handler(req, res) {
@@ -26,7 +25,6 @@ export default async function handler(req, res) {
         } else {
           res.status(400).send("user exists");
         }
-        
       } catch (error) {
         console.log(error);
         res.status(500).send(error);

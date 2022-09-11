@@ -20,7 +20,8 @@ import {
   Tbody,
   Td,
 } from "@chakra-ui/react";
-import TransactionsTable from '../TransactionsTable/TransactionsTable';
+import TransactionsTable from "../TransactionsTable/TransactionsTable";
+import { Transaction } from "../../lib/Interfaces";
 
 interface BlockProps {
   hash: string;
@@ -28,12 +29,6 @@ interface BlockProps {
   timestamp: Date;
   nonce: number;
   transactions: Transaction[];
-}
-
-interface Transaction {
-  fromAddress: string | null;
-  toAddress: string;
-  amount: number;
 }
 
 const Block: FC<BlockProps> = ({
@@ -52,8 +47,6 @@ const Block: FC<BlockProps> = ({
       {children}
     </Text>
   );
-
-  
 
   return (
     <Box
@@ -104,7 +97,7 @@ const Block: FC<BlockProps> = ({
           <PopoverCloseButton />
           <PopoverHeader>All Transactions</PopoverHeader>
           <PopoverBody>
-            <TransactionsTable transactions={transactions}/>
+            <TransactionsTable transactions={transactions} />
           </PopoverBody>
         </PopoverContent>
       </Popover>

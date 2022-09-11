@@ -24,6 +24,10 @@ import Navbar from "../components/Navbar/Navbar";
 import UsersTable from "../components/UsersTable/UsersTable";
 import { Transaction, Block, Blockchain, User } from "../lib/Interfaces";
 import { useAuthContext } from "../lib/contexts/authContext";
+import { useTransactionContext } from "../lib/contexts/transactionContext";
+
+import { config } from "process";
+import TransactionModal from "../components/TransactionModal/TransactionModal";
 
 interface MainProps {
   tawsifCoin: Blockchain;
@@ -31,44 +35,28 @@ interface MainProps {
 }
 
 const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
-  const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>(
-    []
-  );
   const [blockchain, setBlockchain] = useState<Block[]>(tawsifCoin.chain);
   const [users, setUsers] = useState<User[]>(usersFromFetchCall || []);
+  const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>(
+    tawsifCoin.pendingTransactions
+  );
 
-  const { isLoggedIn, publicKey, name, logout, signUpOnOpen, loginOnOpen } =
-    useAuthContext();
+  const {
+    isLoggedIn,
+    publicKey,
+    name,
+    logout,
+    signUpOnOpen,
+    loginOnOpen,
+    privateKey,
+  } = useAuthContext();
 
-  // const createTransaction = async () => {
-  //   try {
-  //     const body = {
-  //       privateKey,
-  //       transactionDetails: {
-  //         fromAddress: publicKey,
-  //         toAddress: "broskiTf",
-  //         amount: 100,
-  //       },
-  //     };
-
-  //     const response = await (
-  //       await axios.post("http://localhost:3000/api/transaction", body)
-  //     ).data;
-
-  //     setPendingTransactions(response.pendingTransactions);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  const { transactionOnOpen } = useTransactionContext();
 
   const mineBlock = async () => {
     try {
-      const body = {
-        minerAddress: "ZeyadTheMiner",
-      };
-
       const response = await (
-        await axios.post("http://localhost:3000/api/block", body)
+        await axios.post("http://localhost:3000/api/block")
       ).data;
 
       setPendingTransactions(response.pendingTransactions);
@@ -91,10 +79,17 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
         )}
       </Navbar>
 
-      {isLoggedIn && <Button>Create Transaction</Button>}
+      {isLoggedIn && (
+        <Button onClick={transactionOnOpen}>Create Transaction</Button>
+      )}
 
       <Text>Public Key: {publicKey}</Text>
       <Text>Name : {name}</Text>
+      <TransactionModal
+        users={users}
+        setPendingTransactions={setPendingTransactions}
+      />
+
       <Grid templateColumns="repeat(5, 1fr)" gap={3}>
         {blockchain.map((block: any, index: number) => {
           return (
@@ -110,10 +105,10 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
         })}
       </Grid>
       <Button onClick={mineBlock}>Mine Block</Button>
-      <Heading>Transactions Table</Heading>
+      <Heading>Pending Transactions Table</Heading>
       <TransactionsTable transactions={pendingTransactions} />
       <Heading>Users Table</Heading>
-      <UsersTable users={users} />
+      <UsersTable users={users} blockchain={blockchain} />
     </Container>
   );
 };
@@ -123,10 +118,18 @@ export async function getServerSideProps() {
     await axios.get("http://localhost:3000/api/blockchain")
   ).data; // make the api call to backend here
 
+  console.log(blockchainResponse);
+
   const usersResponse = await (
     await axios.get("http://localhost:3000/api/user")
   ).data;
-  return { props: { tawsifCoin: blockchainResponse, users: usersResponse } };
+
+  return {
+    props: {
+      tawsifCoin: blockchainResponse,
+      usersFromFetchCall: usersResponse,
+    },
+  };
 }
 
 export default Main;

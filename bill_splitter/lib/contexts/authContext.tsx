@@ -105,6 +105,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         await axios.post("http://localhost:3000/api/user", values)
       ).data;
 
+
+
       setName(response.name);
       setPublicKey(response.publicKey);
       setPrivateKey(response.privateKey);

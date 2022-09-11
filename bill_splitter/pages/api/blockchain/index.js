@@ -1,5 +1,8 @@
-const { getBlockchain, deleteBlockchain } = require("../../../lib/controllers/blockchain");
-import dbConnect from '../../../lib/utils/dbConnect';
+const {
+  getBlockchain,
+  deleteBlockchain,
+} = require("../../../lib/controllers/blockchain");
+import dbConnect from "../../../lib/utils/dbConnect";
 
 export default async function handler(req, res) {
   const method = req.method;
@@ -11,15 +14,16 @@ export default async function handler(req, res) {
       try {
         const response = await getBlockchain();
         res.status(200).json(response);
-      } catch(error) {
-        res.error(error);
+      } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
       }
       break;
     case "DELETE":
       try {
         const response = await deleteBlockchain();
         res.status(202).json(response);
-      } catch(error) {
+      } catch (error) {
         console.log(error);
         res.error(error);
       }

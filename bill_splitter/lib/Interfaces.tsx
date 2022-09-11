@@ -1,8 +1,7 @@
-
 export interface User {
   name: string;
   publicKey: string;
-  privateKey: string;
+  privateKey?: string;
 }
 
 export interface Block {
@@ -14,7 +13,9 @@ export interface Block {
 }
 
 export interface Transaction {
+  fromName: string | null;
   fromAddress: string | null;
+  toName: string | null;
   toAddress: string | null;
   amount: number;
 }
@@ -25,4 +26,9 @@ export interface Blockchain {
   pendingTransactions: Transaction[];
   miningReward: number;
   identifier: string;
+}
+
+export interface SelectOption {
+  value: string;
+  label: string;
 }
