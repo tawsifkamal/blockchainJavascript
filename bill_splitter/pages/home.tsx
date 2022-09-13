@@ -14,16 +14,20 @@ import {
   Badge,
   Grid,
   AccordionButton,
+  Icon,
 } from "@chakra-ui/react";
+
+import { HiOutlineLink } from "react-icons/hi";
 
 import BlockComponent from "../components/Block/Block";
 import TransactionsTable from "../components/TransactionsTable/TransactionsTable";
 import axios from "axios";
 import React, { FC, useState } from "react";
-import Navbar from "../components/Navbar/Navbar";
+import Navbar from "../components/Navbar/NavbarChakra";
 import UsersTable from "../components/UsersTable/UsersTable";
 import { Transaction, Block, Blockchain, User } from "../lib/Interfaces";
 import { useAuthContext } from "../lib/contexts/authContext";
+
 import { useTransactionContext } from "../lib/contexts/transactionContext";
 
 import { config } from "process";
@@ -41,15 +45,8 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
     tawsifCoin.pendingTransactions
   );
 
-  const {
-    isLoggedIn,
-    publicKey,
-    name,
-    logout,
-    signUpOnOpen,
-    loginOnOpen,
-    privateKey,
-  } = useAuthContext();
+  const { isLoggedIn, publicKey, name, logout, signUpOnOpen, loginOnOpen } =
+    useAuthContext();
 
   const { transactionOnOpen } = useTransactionContext();
 
@@ -68,16 +65,7 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
 
   return (
     <Container maxWidth="container.xl" py={10}>
-      <Navbar setUsers={setUsers} users={users}>
-        {!isLoggedIn ? (
-          <Box>
-            <Button onClick={signUpOnOpen}>Sign Up</Button>
-            <Button onClick={loginOnOpen}>Login</Button>
-          </Box>
-        ) : (
-          <Button onClick={logout}>Logout</Button>
-        )}
-      </Navbar>
+      <Navbar setUsers={setUsers} users={users} />
 
       {isLoggedIn && (
         <Button onClick={transactionOnOpen}>Create Transaction</Button>
@@ -90,20 +78,25 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
         setPendingTransactions={setPendingTransactions}
       />
 
-      <Grid templateColumns="repeat(5, 1fr)" gap={3}>
+      <Flex alignItems="center">
         {blockchain.map((block: any, index: number) => {
-          return (
-            <BlockComponent
-              hash={block.hash}
-              previousHash={block.previousHash}
-              nonce={block.nonce}
-              timestamp={block.timestamp}
-              transactions={block.transactions}
-              key={index}
-            />
-          );
+          {
+            return (
+              <>
+                {index > 0 && <Icon as={HiOutlineLink} m={5} />}
+
+                <BlockComponent
+                  hash={block.hash}
+                  previousHash={block.previousHash}
+                  nonce={block.nonce}
+                  timestamp={block.timestamp}
+                  transactions={block.transactions}
+                />
+              </>
+            );
+          }
         })}
-      </Grid>
+      </Flex>
       <Button onClick={mineBlock}>Mine Block</Button>
       <Heading>Pending Transactions Table</Heading>
       <TransactionsTable transactions={pendingTransactions} />
