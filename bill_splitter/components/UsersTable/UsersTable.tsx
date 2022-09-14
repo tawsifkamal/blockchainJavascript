@@ -8,6 +8,7 @@ import {
   Text,
   Container,
   useTheme,
+  Heading,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { FC, useEffect, useState } from "react";
@@ -23,7 +24,7 @@ const UsersTable: FC<UsersTableProps> = ({
   ...props
 }: UsersTableProps) => {
   const [usersWithBalance, setUsersWithBalance] = useState(users);
-  const theme = useTheme(); 
+  const theme = useTheme();
   useEffect(() => {
     async function fetchData() {
       const response = await (
@@ -37,22 +38,23 @@ const UsersTable: FC<UsersTableProps> = ({
   }, [blockchain, users]);
 
   return (
-    <Container maxWidth="container.lg" mt={12} >
-      <Table {...props} variant="striped" >
-        <Thead>
+    <Container maxWidth="container.xl" mt={12}>
+      <Heading mb={6}>All Users</Heading>
+      <Table {...props} variant="striped" boxShadow="lg">
+        <Thead bgColor={theme.colors.darkBlue}>
           <Tr>
-            <Th>Name</Th>
-            <Th>Public Key</Th>
-            <Th>Current Balance</Th>
+            <Th color="white">Name</Th>
+            <Th color="white">Public Key</Th>
+            <Th color="white">Current Balance</Th>
           </Tr>
         </Thead>
-        <Tbody>
+        <Tbody bgColor={theme.colors.lightBlue}>
           {usersWithBalance.map((user: any, index: any) => {
             return (
               <Tr key={index}>
                 <Td maxWidth="sm">{user.name}</Td>
-                <Td>
-                  <Text noOfLines={1} maxWidth="sm">
+                <Td maxWidth="xs" >
+                  <Text noOfLines={1} maxWidth="lg">
                     {user.publicKey}{" "}
                   </Text>
                 </Td>

@@ -106,12 +106,11 @@ const Navbar: FC<NavbarProps> = ({ setUsers, users }: NavbarProps) => {
               <Button
                 onClick={loginOnOpen}
                 fontSize={"sm"}
-                fontWeight={400}
-                variant={"link"}
-                _hover={{
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                }}
+                fontWeight={600}
+                bg={theme.colors.teal}
+                color={"white"}
+                size="md"
+                width={20}
               >
                 Login
               </Button>
@@ -125,6 +124,7 @@ const Navbar: FC<NavbarProps> = ({ setUsers, users }: NavbarProps) => {
                 _hover={{
                   bg: theme.colors.lightBlue,
                 }}
+                width={20}
                 onClick={signUpOnOpen}
               >
                 Sign Up

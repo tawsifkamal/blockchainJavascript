@@ -19,6 +19,7 @@ import {
   Th,
   Tbody,
   Td,
+  useTheme,
 } from "@chakra-ui/react";
 import TransactionsTable from "../TransactionsTable/TransactionsTable";
 import { Transaction } from "../../lib/Interfaces";
@@ -29,6 +30,7 @@ interface BlockProps {
   timestamp: Date;
   nonce: number;
   transactions: Transaction[];
+  index: number;
 }
 
 const Block: FC<BlockProps> = ({
@@ -37,13 +39,16 @@ const Block: FC<BlockProps> = ({
   timestamp,
   nonce,
   transactions,
+  index,
 }: BlockProps) => {
   const StyledDivider: FC<any> = (props) => (
     <Divider width="95%" borderColor="gray.400" {...props} />
   );
 
+  const theme = useTheme();
+
   const StyledText: FC<any> = ({ children, ...props }: any) => (
-    <Text fontSize="0.65em" noOfLines={1} {...props}>
+    <Text fontSize="sm" noOfLines={1} {...props}>
       {children}
     </Text>
   );
@@ -51,16 +56,20 @@ const Block: FC<BlockProps> = ({
   return (
     <Box
       display="flex"
+      alignSelf="start"
       px={4}
       py={4}
       rounded={4}
       gap={1}
       flexDirection="column"
-      border="1px solid black"
-      mt={10}
-      maxWidth={36}
+      boxShadow="base"
+      maxWidth={60}
+      border="1px solid"
+      borderColor="gray.300"
     >
-      <Heading size="sm">Genesis Block</Heading>
+      <Heading size="md">
+        {index === 0 ? "Genesis Block" : "Block " + index}
+      </Heading>
 
       <StyledDivider />
       <StyledText>Hash</StyledText>
@@ -68,11 +77,11 @@ const Block: FC<BlockProps> = ({
 
       <StyledDivider />
       <StyledText>Previous Hash</StyledText>
-      <StyledText>{previousHash}</StyledText>
+      <StyledText color="gray.500">{previousHash}</StyledText>
 
       <StyledDivider />
       <StyledText>Nonce</StyledText>
-      <StyledText>{nonce}</StyledText>
+      <StyledText color="gray.500">{nonce}</StyledText>
 
       <StyledDivider />
       <Badge
@@ -85,12 +94,21 @@ const Block: FC<BlockProps> = ({
       >
         Timestamp
       </Badge>
-      <StyledText>{timestamp.toString()}</StyledText>
+      <StyledText color="gray.500">{timestamp.toString()}</StyledText>
 
       <StyledDivider />
       <Popover>
         <PopoverTrigger>
-          <Button>Transactions</Button>
+          <Button
+            variant="link"
+            textDecoration="underline"
+            textUnderlineOffset={4}
+            maxWidth="min"
+            py={2}
+            color={theme.colors.teal}
+          >
+            Block Transactions
+          </Button>
         </PopoverTrigger>
         <PopoverContent>
           <PopoverArrow />

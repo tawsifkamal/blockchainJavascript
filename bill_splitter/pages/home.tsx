@@ -15,6 +15,7 @@ import {
   Grid,
   AccordionButton,
   Icon,
+  useTheme,
 } from "@chakra-ui/react";
 
 import { HiOutlineLink } from "react-icons/hi";
@@ -30,7 +31,6 @@ import { useAuthContext } from "../lib/contexts/authContext";
 
 import { useTransactionContext } from "../lib/contexts/transactionContext";
 
-import { config } from "process";
 import TransactionModal from "../components/TransactionModal/TransactionModal";
 
 interface MainProps {
@@ -47,6 +47,8 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
 
   const { isLoggedIn, publicKey, name, logout, signUpOnOpen, loginOnOpen } =
     useAuthContext();
+
+  const theme = useTheme();
 
   const { transactionOnOpen } = useTransactionContext();
 
@@ -78,7 +80,7 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
         setPendingTransactions={setPendingTransactions}
       />
 
-      <Flex alignItems="center">
+      <Flex height="lg" flexWrap="wrap">
         {blockchain.map((block: any, index: number) => {
           {
             return (
@@ -91,6 +93,7 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
                   nonce={block.nonce}
                   timestamp={block.timestamp}
                   transactions={block.transactions}
+                  index={index}
                 />
               </>
             );
@@ -98,10 +101,13 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
         })}
       </Flex>
       <Button onClick={mineBlock}>Mine Block</Button>
-      <Heading>Pending Transactions Table</Heading>
-      <TransactionsTable transactions={pendingTransactions} />
-      <Heading>Users Table</Heading>
-      <UsersTable users={users} blockchain={blockchain} />
+
+      {pendingTransactions.length !== 0 && (
+        <Box>
+          <Heading mt={4}>Pending Transactions</Heading>
+          <TransactionsTable transactions={pendingTransactions} />
+        </Box>
+      )}
     </Container>
   );
 };
