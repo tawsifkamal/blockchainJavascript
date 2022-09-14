@@ -39,7 +39,11 @@ interface MainProps {
 }
 
 const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
-  const [blockchain, setBlockchain] = useState<Block[]>(tawsifCoin.chain);
+  const [blockchain, setBlockchain] = useState<Block[][]>(
+    sliceIntoChunks(tawsifCoin.chain, 4)
+  );
+  const [currentPage, setCurrentPage] = useState<number>(blockchain.length - 1);
+
   const [users, setUsers] = useState<User[]>(usersFromFetchCall || []);
   const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>(
     tawsifCoin.pendingTransactions
@@ -52,6 +56,15 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
 
   const { transactionOnOpen } = useTransactionContext();
 
+  function sliceIntoChunks(arr: Block[], chunkSize: number) {
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+      const chunk = arr.slice(i, i + chunkSize);
+      res.push(chunk);
+    }
+    return res;
+  }
+
   const mineBlock = async () => {
     try {
       const response = await (
@@ -59,48 +72,100 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
       ).data;
 
       setPendingTransactions(response.pendingTransactions);
-      setBlockchain(response.chain);
+      setBlockchain(sliceIntoChunks(response.chain, 4));
+      setCurrentPage(sliceIntoChunks(response.chain, 4).length - 1);
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    <Container maxWidth="container.xl" py={10}>
+    <Container
+      maxWidth="container.xl"
+      py={10}
+      display="flex"
+      flexDirection="column"
+    >
       <Navbar setUsers={setUsers} users={users} />
+      <Flex justifyContent="space-between" px={3} pt={5}>
+        {isLoggedIn && <Heading> Welcome, {name}! </Heading>}
 
-      {isLoggedIn && (
-        <Button onClick={transactionOnOpen}>Create Transaction</Button>
-      )}
+        <Flex gap={3}>
+          <Button
+            onClick={mineBlock}
+            bgColor={theme.colors.purple}
+            color="white"
+          >
+            Mine Block
+          </Button>
+          {isLoggedIn && (
+            <Button
+              onClick={transactionOnOpen}
+              bgColor={theme.colors.purple}
+              color="white"
+            >
+              Create Transaction
+            </Button>
+          )}
+        </Flex>
+      </Flex>
 
-      <Text>Public Key: {publicKey}</Text>
-      <Text>Name : {name}</Text>
       <TransactionModal
         users={users}
         setPendingTransactions={setPendingTransactions}
       />
 
-      <Flex height="lg" flexWrap="wrap">
-        {blockchain.map((block: any, index: number) => {
-          {
-            return (
-              <>
-                {index > 0 && <Icon as={HiOutlineLink} m={5} />}
+      <Flex
+        height="min"
+        alignItems="center"
+        border="1px solid black"
+        flexWrap="wrap"
+        mt={3}
+        gap={9}
+        pl={2}
+      >
+        {blockchain[currentPage].map((block: any, index: number) => (
+          <>
+            {index > 0 && index % 4 !== 0 && (
+              <Icon as={HiOutlineLink} boxSize="1.2em" />
+            )}
 
-                <BlockComponent
-                  hash={block.hash}
-                  previousHash={block.previousHash}
-                  nonce={block.nonce}
-                  timestamp={block.timestamp}
-                  transactions={block.transactions}
-                  index={index}
-                />
-              </>
-            );
-          }
-        })}
+            <BlockComponent
+              hash={block.hash}
+              previousHash={block.previousHash}
+              nonce={block.nonce}
+              timestamp={block.timestamp}
+              transactions={block.transactions}
+              index={currentPage * 4 + index}
+            />
+          </>
+        ))}
       </Flex>
-      <Button onClick={mineBlock}>Mine Block</Button>
+
+      <Flex
+        alignSelf="center"
+        mt={10}
+        bgColor={theme.colors.darkBlue}
+        maxWidth="min"
+        rounded={6}
+        p={1}
+        boxShadow="base"
+        border="1px solid"
+        borderColor="gray.300"
+      >
+        {[...Array(blockchain.length).keys()]
+          .map((i) => i + 1)
+          .map((page, index) => (
+            <Button
+              size="sm"
+              variant="link"
+              color={index === currentPage ? "teal" : "white"}
+              onClick={() => setCurrentPage(page - 1)}
+            >
+              {page}
+            </Button>
+          ))}
+      </Flex>
 
       {pendingTransactions.length !== 0 && (
         <Box>

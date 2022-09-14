@@ -110,6 +110,9 @@ const Navbar: FC<NavbarProps> = ({ setUsers, users }: NavbarProps) => {
                 bg={theme.colors.teal}
                 color={"white"}
                 size="md"
+                _hover={{
+                  bg: theme.colors.lightBlue,
+                }}
                 width={20}
               >
                 Login
@@ -131,7 +134,7 @@ const Navbar: FC<NavbarProps> = ({ setUsers, users }: NavbarProps) => {
               </Button>
             </>
           ) : (
-            <Button onClick={logout}>Logout</Button>
+            <Button onClick={logout} bgColor={theme.colors.darkBlue} color="white">Logout</Button>
           )}
         </Stack>
       </Flex>

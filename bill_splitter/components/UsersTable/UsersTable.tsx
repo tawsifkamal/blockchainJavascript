@@ -40,7 +40,7 @@ const UsersTable: FC<UsersTableProps> = ({
   return (
     <Container maxWidth="container.xl" mt={12}>
       <Heading mb={6}>All Users</Heading>
-      <Table {...props} variant="striped" boxShadow="lg">
+      <Table {...props} variant="striped" boxShadow="base">
         <Thead bgColor={theme.colors.darkBlue}>
           <Tr>
             <Th color="white">Name</Th>
@@ -48,7 +48,7 @@ const UsersTable: FC<UsersTableProps> = ({
             <Th color="white">Current Balance</Th>
           </Tr>
         </Thead>
-        <Tbody bgColor={theme.colors.lightBlue}>
+        <Tbody bgColor={theme.colors.teal}>
           {usersWithBalance.map((user: any, index: any) => {
             return (
               <Tr key={index}>
