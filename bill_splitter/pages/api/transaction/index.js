@@ -20,12 +20,12 @@ export default async function handler(req, res) {
 
         res.status(201).json(response);
       } catch (error) {
+        console.log(error.message);
         if (error.message === "insufficient funds!") {
           res.status(400).send(error);
         } else {
           res.status(500).send(error);
         }
-        
       }
       break;
   }

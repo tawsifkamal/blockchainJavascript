@@ -13,7 +13,7 @@ interface TransactionProviderProps {
 }
 
 interface FormValues {
-  toAddress: string;
+  toAddress?: string;
   amount: string;
 }
 
@@ -22,6 +22,12 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     isOpen: transactionIsOpen,
     onOpen: transactionOnOpen,
     onClose: transactionOnClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: buyCoinIsOpen,
+    onOpen: buyCoinOnOpen,
+    onClose: buyCoinOnClose,
   } = useDisclosure();
 
   const { privateKey, publicKey, name } = useAuthContext();
@@ -34,16 +40,20 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     toast: typeof useToast,
     setPendingTransactions: (value: Transaction[]) => void
   ) => {
-    const [recipientName, recipientAddress] = values.toAddress.split(" ");
+    const [recipientName, recipientAddress] = values.toAddress
+      ? values.toAddress.split(" ")
+      : [null, null];
     try {
       const body = {
         privateKey,
         transactionDetails: {
-          fromName: name,
-          fromAddress: publicKey,
-          toName: recipientName,
-          toAddress: recipientAddress,
-          amount: parseInt(values.amount),
+          fromName: recipientAddress ? name : "Coinbase",
+          fromAddress: recipientAddress ? publicKey : null,
+          toName: recipientName ? recipientName : name,
+          toAddress: recipientAddress ? recipientAddress : publicKey,
+          amount: recipientAddress
+            ? parseInt(values.amount)
+            : parseInt(values.amount) / 5000,
         },
       };
 
@@ -53,7 +63,13 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
 
       setPendingTransactions(response.pendingTransactions);
       transactionOnClose();
-      transactionSuccessToast(toast, values.amount, recipientName);
+      transactionSuccessToast(
+        toast,
+        recipientAddress
+          ? values.amount
+          : (parseInt(values.amount) / 5000).toString(),
+        recipientName ? recipientName : name
+      );
     } catch (error: any) {
       console.log(error);
       if (error.response.status === 400) {
@@ -120,6 +136,9 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     transactionIsOpen,
     transactionOnOpen,
     transactionOnClose,
+    buyCoinIsOpen,
+    buyCoinOnOpen,
+    buyCoinOnClose,
     createTransaction,
   };
   return (

@@ -15,6 +15,17 @@ export const getBlockchain = async () => {
   }
 };
 
+export const updateBlockchain = async (difficulty, miningReward) => {
+  return Blockchain.findOneAndUpdate(
+    { identifier: "tawsifCoin" },
+    {
+      difficulty: difficulty ? difficulty : 4,
+      miningReward: miningReward ? miningReward : 100,
+    },
+    { returnDocument: "after" }
+  );
+};
+
 export const deleteBlockchain = async () => {
   return Blockchain.deleteOne({});
 };

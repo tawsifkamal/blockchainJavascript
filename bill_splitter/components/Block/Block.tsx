@@ -110,11 +110,15 @@ const Block: FC<BlockProps> = ({
             Block Transactions
           </Button>
         </PopoverTrigger>
-        <PopoverContent>
+        <PopoverContent
+          width="full"
+          maxHeight="200px"
+          overflowY="scroll"
+        >
           <PopoverArrow />
           <PopoverCloseButton />
           <PopoverHeader>All Transactions</PopoverHeader>
-          <PopoverBody>
+          <PopoverBody overflowX="hidden">
             <TransactionsTable transactions={transactions} />
           </PopoverBody>
         </PopoverContent>

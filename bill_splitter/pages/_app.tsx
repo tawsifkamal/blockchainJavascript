@@ -6,6 +6,7 @@ import "@fontsource/josefin-sans";
 import { AuthProvider } from "../lib/contexts/authContext";
 import { TransactionProvider } from "../lib/contexts/transactionContext";
 
+
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <AuthProvider>

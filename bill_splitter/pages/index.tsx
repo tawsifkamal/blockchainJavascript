@@ -13,7 +13,7 @@ import {
   Container,
   Link,
 } from "@chakra-ui/react";
-import Navbar from "../components/Navbar/Navbar";
+import Navbar from "../components/Navbar/NavbarChakra";
 import { Formik, Form, Field } from "formik";
 import axios from "axios";
 
@@ -39,12 +39,16 @@ const Home: NextPage = () => {
         initialValues={initialFormValues}
         onSubmit={async (values) => {
           if (isLogin) {
-            const response = await axios.put('http://localhost:3000/api/user', values);
+            const response = await axios.put(
+              "http://localhost:3000/api/user",
+              values
+            );
           } else {
-            const reponse = await axios.post('http://localhost:3000/api/user', values);
+            const reponse = await axios.post(
+              "http://localhost:3000/api/user",
+              values
+            );
           }
-          
-          
         }}
       >
         <Form>

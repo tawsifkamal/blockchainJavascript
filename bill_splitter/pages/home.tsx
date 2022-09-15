@@ -16,22 +16,33 @@ import {
   AccordionButton,
   Icon,
   useTheme,
+  Stat,
+  StatArrow,
+  StatGroup,
+  StatHelpText,
+  StatLabel,
+  StatNumber,
+  IconButton,
+  Image,
+  Tooltip,
+  VisuallyHidden,
 } from "@chakra-ui/react";
 
 import { HiOutlineLink } from "react-icons/hi";
+import { FcMoneyTransfer, FcAddDatabase, FcFlashOn } from "react-icons/fc";
 
 import BlockComponent from "../components/Block/Block";
 import TransactionsTable from "../components/TransactionsTable/TransactionsTable";
 import axios from "axios";
 import React, { FC, useState } from "react";
 import Navbar from "../components/Navbar/NavbarChakra";
-import UsersTable from "../components/UsersTable/UsersTable";
 import { Transaction, Block, Blockchain, User } from "../lib/Interfaces";
 import { useAuthContext } from "../lib/contexts/authContext";
 
 import { useTransactionContext } from "../lib/contexts/transactionContext";
 
 import TransactionModal from "../components/TransactionModal/TransactionModal";
+import BuyCoinModal from "../components/buyCoinModal/BuyCoinModal";
 
 interface MainProps {
   tawsifCoin: Blockchain;
@@ -49,12 +60,11 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
     tawsifCoin.pendingTransactions
   );
 
-  const { isLoggedIn, publicKey, name, logout, signUpOnOpen, loginOnOpen } =
-    useAuthContext();
+  const { isLoggedIn, name } = useAuthContext();
 
   const theme = useTheme();
 
-  const { transactionOnOpen } = useTransactionContext();
+  const { transactionOnOpen, buyCoinOnOpen } = useTransactionContext();
 
   function sliceIntoChunks(arr: Block[], chunkSize: number) {
     const res = [];
@@ -87,27 +97,60 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
       flexDirection="column"
     >
       <Navbar setUsers={setUsers} users={users} />
-      <Flex justifyContent="space-between" px={3} pt={5}>
-        {isLoggedIn && <Heading> Welcome, {name}! </Heading>}
+      <Flex justifyContent="space-between" px={2} py={10} position="relative">
+        <Box>
+          <Heading size="3xl">TawsifCoin Blockchain</Heading>
+          <StatGroup px={2}>
+            <Stat>
+              <StatLabel>USD to TawsifCoin</StatLabel>
+              <StatNumber>$5000 USD</StatNumber>
+              <StatHelpText>
+                <StatArrow type="increase" />
+                23.36%
+              </StatHelpText>
+            </Stat>
+          </StatGroup>
 
-        <Flex gap={3}>
           <Button
-            onClick={mineBlock}
-            bgColor={theme.colors.purple}
+            onClick={buyCoinOnOpen}
+            border="2px solid"
             color="white"
+            bgColor={theme.colors.darkBlue}
+            rightIcon={<FcFlashOn />}
+            _hover={{ bgColor: theme.colors.teal }}
           >
-            Mine Block
+            Buy TawsifCoin
           </Button>
-          {isLoggedIn && (
+          <BuyCoinModal setPendingTransactions={setPendingTransactions} />
+        </Box>
+
+        <Box position="absolute" right={0} top={3}>
+          <Heading size="md" mb={3} textAlign="right">
+            {isLoggedIn ? `Welcome, ${name}!` : ""}
+          </Heading>
+          <Flex gap={3}>
             <Button
+              leftIcon={<FcMoneyTransfer />}
               onClick={transactionOnOpen}
               bgColor={theme.colors.purple}
               color="white"
+              _hover={{ bgColor: theme.colors.teal }}
+              disabled={!isLoggedIn}
             >
               Create Transaction
             </Button>
-          )}
-        </Flex>
+
+            <Button
+              leftIcon={<FcAddDatabase />}
+              onClick={mineBlock}
+              bgColor={theme.colors.purple}
+              _hover={{ bgColor: theme.colors.teal }}
+              color="white"
+            >
+              Mine Block
+            </Button>
+          </Flex>
+        </Box>
       </Flex>
 
       <TransactionModal
@@ -118,11 +161,10 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
       <Flex
         height="min"
         alignItems="center"
-        border="1px solid black"
         flexWrap="wrap"
         mt={3}
         gap={9}
-        pl={2}
+        pl={1.5}
       >
         {blockchain[currentPage].map((block: any, index: number) => (
           <>

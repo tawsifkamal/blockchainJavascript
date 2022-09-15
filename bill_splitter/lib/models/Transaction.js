@@ -9,6 +9,8 @@ const transactionMethods = {
   },
 
   signTransaction: function (signingKey) {
+    if (this.fromAddress === null) return;
+
     if (signingKey.getPublic("hex") !== this.fromAddress) {
       throw new Error("You cannot spend someone elses coins!");
     }

@@ -16,8 +16,12 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
+  Tooltip,
   Text,
+  Code,
   useToast,
+  theme,
+  useTheme,
 } from "@chakra-ui/react";
 import { useAuthContext } from "../../lib/contexts/authContext";
 import { useTransactionContext } from "../../lib/contexts/transactionContext";
@@ -61,6 +65,7 @@ const TransactionModal: FC<TransactionModalProps> = ({
   };
 
   const toast = useToast();
+  const theme = useTheme();
 
   const selectOptions = users
     .filter((user) => user.name !== name)
@@ -77,8 +82,18 @@ const TransactionModal: FC<TransactionModalProps> = ({
       onClose={transactionOnClose}
       headerValue={"Create Transaction"}
     >
-      <Text>From Name : {name}</Text>
-      <Text>From Address: {publicKey}</Text>
+      <FormLabel>From Address</FormLabel>
+      <Code
+        color={theme.colors.teal}
+        width="full"
+        bgColor={theme.colors.darkBlue}
+        mb={3}
+        fontWeight="bold"
+        boxShadow="base"
+        p={2}
+      >
+        {publicKey}
+      </Code>
 
       <Formik
         initialValues={initialFormValues}
@@ -90,9 +105,10 @@ const TransactionModal: FC<TransactionModalProps> = ({
           <Field name="toAddress" validate={validateInput}>
             {({ field, form, meta }: FieldProps) => {
               return (
-                <FormControl isInvalid={!!meta.touched && !!meta.error}>
+                <FormControl mb={2} isInvalid={!!meta.touched && !!meta.error}>
+                  <FormLabel>Select Recipient</FormLabel>
                   <Select
-                    placeholder="Select recipient"
+                    placeholder="Nabeel"
                     name={field.name}
                     options={selectOptions}
                     onChange={(option: SingleValue<SelectOption>) =>
@@ -118,6 +134,7 @@ const TransactionModal: FC<TransactionModalProps> = ({
             {({ field, form }: any) => (
               <FormControl
                 isInvalid={form.errors.amount && form.touched.amount}
+                pb={4}
               >
                 <FormLabel>Enter Amount</FormLabel>
                 <Input {...field} placeholder={100} />
@@ -125,10 +142,30 @@ const TransactionModal: FC<TransactionModalProps> = ({
               </FormControl>
             )}
           </Field>
-          <Text>Recipient: {recipient}</Text>
-          <Text>Recipient Address: {recipientAddress}</Text>
+          {recipientAddress && (
+            <>
+              <FormLabel>Recipient Address</FormLabel>
+              <Code
+                color={theme.colors.teal}
+                width="full"
+                bgColor={theme.colors.darkBlue}
+                mb={3}
+                fontWeight="bold"
+                boxShadow="base"
+                p={2}
+              >
+                {recipientAddress}
+              </Code>
+            </>
+          )}
 
-          <Button width="100%" my={3} type="submit">
+          <Button
+            width="100%"
+            bgColor={theme.colors.purple}
+            color="white "
+            my={3}
+            type="submit"
+          >
             Create Transaction
           </Button>
         </Form>

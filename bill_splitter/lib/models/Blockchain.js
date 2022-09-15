@@ -58,7 +58,10 @@ const blockchainMethods = {
   },
 
   addTransaction: function (transaction) {
-    if (!transaction.fromAddress || !transaction.toAddress) {
+    if (
+      (!transaction.fromAddress && !transaction.fromName) ||
+      !transaction.toAddress
+    ) {
       throw new Error("this transaction requires from/toAddress");
     }
 

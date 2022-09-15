@@ -7,6 +7,7 @@ import {
   ModalBody,
   Button,
   ModalFooter,
+  useTheme,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { FC, ReactNode } from "react";
@@ -23,21 +24,28 @@ const Modal: FC<ModalProps> = ({
   onClose,
   headerValue,
   children,
-}: ModalProps) => (
-  <ChakraModal isOpen={isOpen} onClose={onClose}>
-    <ModalOverlay />
-    <ModalContent>
-      <ModalHeader>{headerValue}</ModalHeader>
-      <ModalCloseButton />
-      <ModalBody>{children}</ModalBody>
+}: ModalProps) => {
+  const theme = useTheme();
+  return (
+    <ChakraModal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>{headerValue}</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>{children}</ModalBody>
 
-      <ModalFooter>
-        <Button colorScheme="blue" mr={3} onClick={onClose}>
-          Close
-        </Button>
-      </ModalFooter>
-    </ModalContent>
-  </ChakraModal>
-);
-
+        <ModalFooter>
+          <Button
+            bgColor={theme.colors.darkBlue}
+            color="white"
+            mr={3}
+            onClick={onClose}
+          >
+            Close
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </ChakraModal>
+  );
+};
 export default Modal;

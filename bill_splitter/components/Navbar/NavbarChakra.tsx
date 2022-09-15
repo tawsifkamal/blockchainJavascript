@@ -26,13 +26,13 @@ import {
   ChevronRightIcon,
 } from "@chakra-ui/icons";
 
+import { FcFlashOn } from "react-icons/fc";
 import { useAuthContext } from "../../lib/contexts/authContext";
 import { FC } from "react";
 import { User } from "../../lib/Interfaces";
 import LoginModal from "../LoginModal/LoginModal";
 import ShowKeysModal from "../ShowKeysModal/ShowKeysModal";
 import SignupModal from "../SignupModal/SignupModal";
-import tawsifCoinLogo from "../../lib/assets/tawsifCoinLogo.png";
 
 interface NavbarProps {
   users: User[];
@@ -77,7 +77,7 @@ const Navbar: FC<NavbarProps> = ({ setUsers, users }: NavbarProps) => {
           pr={5}
         >
           <Flex alignItems="center">
-            <Icon as={Image} src={tawsifCoinLogo.src} w={10} h={10} />
+            <Icon as={FcFlashOn} boxSize="2em" />
             <Text
               textAlign={useBreakpointValue({ base: "center", md: "left" })}
               fontFamily={"heading"}
@@ -107,11 +107,11 @@ const Navbar: FC<NavbarProps> = ({ setUsers, users }: NavbarProps) => {
                 onClick={loginOnOpen}
                 fontSize={"sm"}
                 fontWeight={600}
-                bg={theme.colors.teal}
+                bg={theme.colors.darkBlue}
                 color={"white"}
                 size="md"
                 _hover={{
-                  bg: theme.colors.lightBlue,
+                  bg: theme.colors.teal,
                 }}
                 width={20}
               >
@@ -125,7 +125,7 @@ const Navbar: FC<NavbarProps> = ({ setUsers, users }: NavbarProps) => {
                 color={"white"}
                 bg={theme.colors.darkBlue}
                 _hover={{
-                  bg: theme.colors.lightBlue,
+                  bg: theme.colors.teal,
                 }}
                 width={20}
                 onClick={signUpOnOpen}
@@ -134,7 +134,13 @@ const Navbar: FC<NavbarProps> = ({ setUsers, users }: NavbarProps) => {
               </Button>
             </>
           ) : (
-            <Button onClick={logout} bgColor={theme.colors.darkBlue} color="white">Logout</Button>
+            <Button
+              onClick={logout}
+              bgColor={theme.colors.darkBlue}
+              color="white"
+            >
+              Logout
+            </Button>
           )}
         </Stack>
       </Flex>
