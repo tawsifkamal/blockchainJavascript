@@ -220,7 +220,7 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
 export async function getServerSideProps() {
   const blockchainResponse = await (await axios.get("/blockchain")).data; // make the api call to backend here
 
-  const usersResponse = await (await get("/user")).data;
+  const usersResponse = await (await axios.get("/user")).data;
 
   return {
     props: {
