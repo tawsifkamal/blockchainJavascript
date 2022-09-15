@@ -26,8 +26,6 @@ export async function getServerSideProps() {
     await axios.get("http://localhost:3000/api/blockchain")
   ).data; // make the api call to backend here
 
-  console.log(blockchainResponse);
-
   const usersResponse = await (
     await axios.get("http://localhost:3000/api/user")
   ).data;

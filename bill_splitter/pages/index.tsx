@@ -1,109 +1,239 @@
-import type { NextPage } from "next";
-import React, { FC, useState, FormEvent } from "react";
 import {
+  Flex,
+  Accordion,
+  AccordionItem,
+  AccordionPanel,
+  AccordionIcon,
   Box,
   Text,
-  Flex,
+  Container,
+  HStack,
   Button,
   Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
-  Container,
-  Link,
+  Divider,
+  Badge,
+  Grid,
+  AccordionButton,
+  Icon,
+  useTheme,
+  Stat,
+  StatArrow,
+  StatGroup,
+  StatHelpText,
+  StatLabel,
+  StatNumber,
+  IconButton,
+  Image,
+  Tooltip,
+  VisuallyHidden,
 } from "@chakra-ui/react";
-import Navbar from "../components/Navbar/NavbarChakra";
-import { Formik, Form, Field } from "formik";
+
+import { HiOutlineLink } from "react-icons/hi";
+import { FcMoneyTransfer, FcAddDatabase, FcFlashOn } from "react-icons/fc";
+
+import BlockComponent from "../components/Block/Block";
+import TransactionsTable from "../components/TransactionsTable/TransactionsTable";
 import axios from "axios";
+import React, { FC, useState } from "react";
+import Navbar from "../components/Navbar/NavbarChakra";
+import { Transaction, Block, Blockchain, User } from "../lib/Interfaces";
+import { useAuthContext } from "../lib/contexts/authContext";
 
-const Home: NextPage = () => {
-  const [isLogin, setIsLogin] = useState(false);
-  const validateInput = (value: string) => {
-    let error;
-    if (!value) {
-      error = "is required";
-    }
+import { useTransactionContext } from "../lib/contexts/transactionContext";
 
-    return error;
-  };
-  const initialFormValues = {
-    username: "",
-    password: "",
-  };
+import TransactionModal from "../components/TransactionModal/TransactionModal";
+import BuyCoinModal from "../components/buyCoinModal/BuyCoinModal";
 
-  const LoginForm: FC = () => (
-    <Box border="1px solid black" boxShadow="5px 9px" rounded={6} p={4}>
-      <Heading> {isLogin ? "Log In" : "Sign Up"}</Heading>
-      <Formik
-        initialValues={initialFormValues}
-        onSubmit={async (values) => {
-          if (isLogin) {
-            const response = await axios.put(
-              "http://localhost:3000/api/user",
-              values
-            );
-          } else {
-            const reponse = await axios.post(
-              "http://localhost:3000/api/user",
-              values
-            );
-          }
-        }}
-      >
-        <Form>
-          <Field name="username" validate={validateInput}>
-            {({ field, form }: any) => (
-              <FormControl
-                isInvalid={form.errors.username && form.touched.username}
-              >
-                <FormLabel>Username</FormLabel>
-                <Input {...field} placeholder="username" />
-                <FormErrorMessage>{form.errors.username}</FormErrorMessage>
-              </FormControl>
-            )}
-          </Field>
+interface MainProps {
+  tawsifCoin: Blockchain;
+  usersFromFetchCall: User[];
+}
 
-          <Field name="password" validate={validateInput}>
-            {({ field, form }: any) => (
-              <FormControl
-                isInvalid={form.errors.password && form.touched.password}
-              >
-                <FormLabel>Password</FormLabel>
-                <Input type="password" {...field} placeholder="password" />
-                <FormErrorMessage>{form.errors.password}</FormErrorMessage>
-              </FormControl>
-            )}
-          </Field>
+const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
+  const [blockchain, setBlockchain] = useState<Block[][]>(
+    sliceIntoChunks(tawsifCoin.chain, 4)
+  );
+  const [currentPage, setCurrentPage] = useState<number>(blockchain.length - 1);
 
-          <Button width="100%" my={3} type="submit">
-            Submit
-          </Button>
-          <Flex gap="4px">
-            <Text fontSize="xs">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}
-            </Text>
-            <Link
-              fontSize="xs"
-              color={"blue.400"}
-              onClick={() => setIsLogin(!isLogin)}
-            >
-              {isLogin ? "Sign up" : "Login"}
-            </Link>
-          </Flex>
-        </Form>
-      </Formik>
-    </Box>
+  const [users, setUsers] = useState<User[]>(usersFromFetchCall || []);
+  const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>(
+    tawsifCoin.pendingTransactions
   );
 
+  const { isLoggedIn, name } = useAuthContext();
+
+  const theme = useTheme();
+
+  const { transactionOnOpen, buyCoinOnOpen } = useTransactionContext();
+
+  function sliceIntoChunks(arr: Block[], chunkSize: number) {
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+      const chunk = arr.slice(i, i + chunkSize);
+      res.push(chunk);
+    }
+    return res;
+  }
+
+  const mineBlock = async () => {
+    try {
+      const response = await (
+        await axios.post("http://localhost:3000/api/block")
+      ).data;
+
+      setPendingTransactions(response.pendingTransactions);
+      setBlockchain(sliceIntoChunks(response.chain, 4));
+      setCurrentPage(sliceIntoChunks(response.chain, 4).length - 1);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <Container maxWidth="container.xl" py={10}>
-      <Navbar />
-      <Flex justifyContent="center" alignItems="center" height="100vh">
-        <LoginForm />
+    <Container
+      maxWidth="container.xl"
+      py={10}
+      display="flex"
+      flexDirection="column"
+    >
+      <Navbar setUsers={setUsers} users={users} />
+      <Flex justifyContent="space-between" px={2} py={10} position="relative">
+        <Box>
+          <Heading size="3xl">TawsifCoin Blockchain</Heading>
+          <StatGroup px={2}>
+            <Stat>
+              <StatLabel>USD to TawsifCoin</StatLabel>
+              <StatNumber>$5000 USD</StatNumber>
+              <StatHelpText>
+                <StatArrow type="increase" />
+                23.36%
+              </StatHelpText>
+            </Stat>
+          </StatGroup>
+
+          <Button
+            onClick={buyCoinOnOpen}
+            border="2px solid"
+            color="white"
+            bgColor={theme.colors.darkBlue}
+            rightIcon={<FcFlashOn />}
+            _hover={{ bgColor: theme.colors.teal }}
+          >
+            Buy TawsifCoin
+          </Button>
+          <BuyCoinModal setPendingTransactions={setPendingTransactions} />
+        </Box>
+
+        <Box position="absolute" right={0} top={3}>
+          <Heading size="md" mb={3} textAlign="right">
+            {isLoggedIn ? `Welcome, ${name}!` : ""}
+          </Heading>
+          <Flex gap={3}>
+            <Button
+              leftIcon={<FcMoneyTransfer />}
+              onClick={transactionOnOpen}
+              bgColor={theme.colors.purple}
+              color="white"
+              _hover={{ bgColor: theme.colors.teal }}
+              disabled={!isLoggedIn}
+            >
+              Create Transaction
+            </Button>
+
+            <Button
+              leftIcon={<FcAddDatabase />}
+              onClick={mineBlock}
+              bgColor={theme.colors.purple}
+              _hover={{ bgColor: theme.colors.teal }}
+              color="white"
+            >
+              Mine Block
+            </Button>
+          </Flex>
+        </Box>
       </Flex>
+
+      <TransactionModal
+        users={users}
+        setPendingTransactions={setPendingTransactions}
+      />
+
+      <Flex
+        height="min"
+        alignItems="center"
+        flexWrap="wrap"
+        mt={3}
+        gap={9}
+        pl={1.5}
+      >
+        {blockchain[currentPage].map((block: any, index: number) => (
+          <>
+            {index > 0 && index % 4 !== 0 && (
+              <Icon as={HiOutlineLink} boxSize="1.2em" />
+            )}
+
+            <BlockComponent
+              hash={block.hash}
+              previousHash={block.previousHash}
+              nonce={block.nonce}
+              timestamp={block.timestamp}
+              transactions={block.transactions}
+              index={currentPage * 4 + index}
+            />
+          </>
+        ))}
+      </Flex>
+
+      <Flex
+        alignSelf="center"
+        mt={10}
+        bgColor={theme.colors.darkBlue}
+        maxWidth="min"
+        rounded={6}
+        p={1}
+        boxShadow="base"
+        border="1px solid"
+        borderColor="gray.300"
+      >
+        {[...Array(blockchain.length).keys()]
+          .map((i) => i + 1)
+          .map((page, index) => (
+            <Button
+              size="sm"
+              variant="link"
+              color={index === currentPage ? "teal" : "white"}
+              onClick={() => setCurrentPage(page - 1)}
+            >
+              {page}
+            </Button>
+          ))}
+      </Flex>
+
+      {pendingTransactions.length !== 0 && (
+        <Box>
+          <Heading mt={4}>Pending Transactions</Heading>
+          <TransactionsTable transactions={pendingTransactions} />
+        </Box>
+      )}
     </Container>
   );
 };
 
-export default Home;
+export async function getServerSideProps() {
+  const blockchainResponse = await (
+    await axios.get("http://localhost:3000/api/blockchain")
+  ).data; // make the api call to backend here
+
+  const usersResponse = await (
+    await axios.get("http://localhost:3000/api/user")
+  ).data;
+
+  return {
+    props: {
+      tawsifCoin: blockchainResponse,
+      usersFromFetchCall: usersResponse,
+    },
+  };
+}
+
+export default Main;

@@ -42,7 +42,6 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
       const response = await (
         await axios.put("http://localhost:3000/api/blockchain/update", body)
       ).data;
-      console.log(response);
       setBlockchain(response);
 
       toast({
@@ -72,7 +71,8 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
         <Form>
           <Field name="difficulty">
             {({ field, form }: any) => (
-              <FormControl pt={4}
+              <FormControl
+                pt={4}
                 isInvalid={form.errors.difficulty && form.touched.difficulty}
               >
                 <FormLabel>Difficulty</FormLabel>
@@ -115,8 +115,6 @@ export async function getServerSideProps() {
   const blockchainResponse = await (
     await axios.get("http://localhost:3000/api/blockchain")
   ).data; // make the api call to backend here
-
-  console.log(blockchainResponse);
 
   const usersResponse = await (
     await axios.get("http://localhost:3000/api/user")
