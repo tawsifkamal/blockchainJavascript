@@ -58,7 +58,7 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
       };
 
       const response = await (
-        await axios.post("http://localhost:3000/api/transaction", body)
+        await axios.post("/transaction", body)
       ).data;
 
       setPendingTransactions(response.pendingTransactions);

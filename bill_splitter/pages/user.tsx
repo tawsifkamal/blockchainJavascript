@@ -22,13 +22,9 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
 };
 
 export async function getServerSideProps() {
-  const blockchainResponse = await (
-    await axios.get("http://localhost:3000/api/blockchain")
-  ).data; // make the api call to backend here
+  const blockchainResponse = await (await axios.get("/api/blockchain")).data; // make the api call to backend here
 
-  const usersResponse = await (
-    await axios.get("http://localhost:3000/api/user")
-  ).data;
+  const usersResponse = await (await axios.get("/api/user")).data;
 
   return {
     props: {

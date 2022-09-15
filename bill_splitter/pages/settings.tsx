@@ -39,9 +39,7 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
         difficulty: parseInt(values.difficulty),
         miningReward: parseInt(values.miningReward),
       };
-      const response = await (
-        await axios.put("http://localhost:3000/api/blockchain/update", body)
-      ).data;
+      const response = await (await axios.put("/blockchain/update", body)).data;
       setBlockchain(response);
 
       toast({
@@ -112,13 +110,9 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
 };
 
 export async function getServerSideProps() {
-  const blockchainResponse = await (
-    await axios.get("http://localhost:3000/api/blockchain")
-  ).data; // make the api call to backend here
+  const blockchainResponse = await (await axios.get("/blockchain")).data; // make the api call to backend here
 
-  const usersResponse = await (
-    await axios.get("http://localhost:3000/api/user")
-  ).data;
+  const usersResponse = await (await axios.get("/user")).data;
 
   return {
     props: {

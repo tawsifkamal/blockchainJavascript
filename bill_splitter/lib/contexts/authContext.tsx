@@ -74,9 +74,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   ) => {
     try {
       const response = await (
-        await axios.get(
-          `http://localhost:3000/api/user/${values.name}?privateKey=${values.privateKey}`
-        )
+        await axios.get(`/user/${values.name}?privateKey=${values.privateKey}`)
       ).data;
 
       setName(response.name);
@@ -101,11 +99,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUsers: (user: User[]) => void
   ) => {
     try {
-      const response = await (
-        await axios.post("http://localhost:3000/api/user", values)
-      ).data;
-
-
+      const response = await (await axios.post("/user", values)).data;
 
       setName(response.name);
       setPublicKey(response.publicKey);

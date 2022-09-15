@@ -77,9 +77,7 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
 
   const mineBlock = async () => {
     try {
-      const response = await (
-        await axios.post("http://localhost:3000/api/block")
-      ).data;
+      const response = await (await axios.post("/api/block")).data;
 
       setPendingTransactions(response.pendingTransactions);
       setBlockchain(sliceIntoChunks(response.chain, 4));
@@ -220,13 +218,9 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
 };
 
 export async function getServerSideProps() {
-  const blockchainResponse = await (
-    await axios.get("http://localhost:3000/api/blockchain")
-  ).data; // make the api call to backend here
+  const blockchainResponse = await (await axios.get("/blockchain")).data; // make the api call to backend here
 
-  const usersResponse = await (
-    await axios.get("http://localhost:3000/api/user")
-  ).data;
+  const usersResponse = await (await get("/user")).data;
 
   return {
     props: {
