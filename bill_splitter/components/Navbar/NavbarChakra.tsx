@@ -259,15 +259,15 @@ interface NavItem {
 const NAV_ITEMS: Array<NavItem> = [
   {
     label: "Home",
-    href: "http://localhost:3000",
+    href: "/",
   },
   {
     label: "All Users",
-    href: "http://localhost:3000/user",
+    href: "/user",
   },
   {
     label: "Settings",
-    href: "http://localhost:3000/settings",
+    href: "/settings",
   },
 ];
 
