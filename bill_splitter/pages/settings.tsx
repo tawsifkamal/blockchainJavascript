@@ -13,22 +13,30 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Formik, Form, Field } from "formik";
-import React, { useState } from "react";
-import { validateInput } from "../components/Modal/formUtils";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar/NavbarChakra";
 import { Block, Blockchain, User } from "../lib/Interfaces";
 
-interface UserPageProps {
-  usersFromFetchCall: User[];
-  tawsifCoin: Blockchain;
-}
-const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
-  const [blockchain, setBlockchain] = useState<Blockchain>(tawsifCoin);
-  const [users, setUsers] = useState<User[]>(usersFromFetchCall || []);
+
+const UserPage = () => {
+  const [blockchain, setBlockchain] = useState<Blockchain>(null);
+  const [users, setUsers] = useState<User[]>([]);
   const initialFormValues = {
-    difficulty: tawsifCoin.difficulty,
-    miningReward: tawsifCoin.miningReward,
+    difficulty: blockchain ? blockchain.difficulty : "",
+    miningReward: blockchain ? blockchain.miningReward : "",
   };
+
+  useEffect(() => {
+    async function fetchData() {
+      const blockchainResponse = await (await axios.get("api/blockchain")).data;
+      const usersResponse = await (await axios.get("api/user")).data;
+
+      setBlockchain(blockchainResponse);
+      setUsers(usersResponse);
+    }
+
+    fetchData();
+  }, []);
 
   const toast = useToast();
   const theme = useTheme();
@@ -39,7 +47,7 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
         difficulty: parseInt(values.difficulty),
         miningReward: parseInt(values.miningReward),
       };
-      const response = await (await axios.put("/blockchain/update", body)).data;
+      const response = await (await axios.put("api/blockchain/update", body)).data;
       setBlockchain(response);
 
       toast({
@@ -63,8 +71,8 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
   return (
     <Container maxWidth="container.xl" py={10}>
       <Navbar setUsers={setUsers} users={users} />
-      <Text pt={3}>Current Difficulty: {blockchain.difficulty}</Text>
-      <Text>Current Mining Reward: {blockchain.miningReward}</Text>
+      <Text pt={3}>Current Difficulty: {blockchain ? blockchain.difficulty : ""}</Text>
+      <Text>Current Mining Reward: {blockchain ? blockchain.miningReward : ""}</Text>
       <Formik initialValues={initialFormValues} onSubmit={handleSubmit}>
         <Form>
           <Field name="difficulty">
@@ -74,7 +82,7 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
                 isInvalid={form.errors.difficulty && form.touched.difficulty}
               >
                 <FormLabel>Difficulty</FormLabel>
-                <Input {...field} placeholder={tawsifCoin.difficulty} />
+                <Input {...field} placeholder={blockchain ? blockchain.difficulty : ""} />
                 <FormErrorMessage>{form.errors.difficulty}</FormErrorMessage>
               </FormControl>
             )}
@@ -88,7 +96,7 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
                 }
               >
                 <FormLabel>Mining Reward</FormLabel>
-                <Input {...field} placeholder={tawsifCoin.miningReward} />
+                <Input {...field} placeholder={blockchain ? blockchain.miningReward : ""} />
                 <FormErrorMessage>{form.errors.difficulty}</FormErrorMessage>
               </FormControl>
             )}
@@ -108,18 +116,5 @@ const UserPage = ({ usersFromFetchCall, tawsifCoin }: UserPageProps) => {
     </Container>
   );
 };
-
-export async function getServerSideProps() {
-  const blockchainResponse = await (await axios.get("/blockchain")).data; // make the api call to backend here
-
-  const usersResponse = await (await axios.get("/user")).data;
-
-  return {
-    props: {
-      tawsifCoin: blockchainResponse,
-      usersFromFetchCall: usersResponse,
-    },
-  };
-}
 
 export default UserPage;

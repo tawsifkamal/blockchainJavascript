@@ -34,30 +34,23 @@ import { FcMoneyTransfer, FcAddDatabase, FcFlashOn } from "react-icons/fc";
 import BlockComponent from "../components/Block/Block";
 import TransactionsTable from "../components/TransactionsTable/TransactionsTable";
 import axios from "axios";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import Navbar from "../components/Navbar/NavbarChakra";
 import { Transaction, Block, Blockchain, User } from "../lib/Interfaces";
 import { useAuthContext } from "../lib/contexts/authContext";
+import dbConnect from "../lib/utils/dbConnect";
 
 import { useTransactionContext } from "../lib/contexts/transactionContext";
-
 import TransactionModal from "../components/TransactionModal/TransactionModal";
 import BuyCoinModal from "../components/buyCoinModal/BuyCoinModal";
 
-interface MainProps {
-  tawsifCoin: Blockchain;
-  usersFromFetchCall: User[];
-}
+const Main: FC = () => {
+  const [blockchain, setBlockchain] = useState<Block[][]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(0);
 
-const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
-  const [blockchain, setBlockchain] = useState<Block[][]>(
-    sliceIntoChunks(tawsifCoin.chain, 4)
-  );
-  const [currentPage, setCurrentPage] = useState<number>(blockchain.length - 1);
-
-  const [users, setUsers] = useState<User[]>(usersFromFetchCall || []);
+  const [users, setUsers] = useState<User[]>([]);
   const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>(
-    tawsifCoin.pendingTransactions
+    []
   );
 
   const { isLoggedIn, name } = useAuthContext();
@@ -65,6 +58,20 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
   const theme = useTheme();
 
   const { transactionOnOpen, buyCoinOnOpen } = useTransactionContext();
+
+  useEffect(() => {
+    async function fetchData() {
+      const blockchainResponse = await (await axios.get("api/blockchain")).data;
+      const usersResponse = await (await axios.get("api/user")).data;
+
+      setBlockchain(sliceIntoChunks(blockchainResponse.chain, 4));
+      setPendingTransactions(blockchainResponse.pendingTransactions);
+      setUsers(usersResponse);
+      setCurrentPage(sliceIntoChunks(blockchainResponse.chain, 4).length - 1);
+    }
+
+    fetchData();
+  }, []);
 
   function sliceIntoChunks(arr: Block[], chunkSize: number) {
     const res = [];
@@ -86,6 +93,9 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
       console.log(error);
     }
   };
+
+  console.log(currentPage);
+
 
   return (
     <Container
@@ -164,22 +174,23 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
         gap={9}
         pl={1.5}
       >
-        {blockchain[currentPage].map((block: any, index: number) => (
-          <>
-            {index > 0 && index % 4 !== 0 && (
-              <Icon as={HiOutlineLink} boxSize="1.2em" />
-            )}
+        {blockchain[currentPage] &&
+          blockchain[currentPage].map((block: any, index: number) => (
+            <>
+              {index > 0 && index % 4 !== 0 && (
+                <Icon as={HiOutlineLink} boxSize="1.2em" />
+              )}
 
-            <BlockComponent
-              hash={block.hash}
-              previousHash={block.previousHash}
-              nonce={block.nonce}
-              timestamp={block.timestamp}
-              transactions={block.transactions}
-              index={currentPage * 4 + index}
-            />
-          </>
-        ))}
+              <BlockComponent
+                hash={block.hash}
+                previousHash={block.previousHash}
+                nonce={block.nonce}
+                timestamp={block.timestamp}
+                transactions={block.transactions}
+                index={currentPage * 4 + index}
+              />
+            </>
+          ))}
       </Flex>
 
       <Flex
@@ -216,18 +227,5 @@ const Main: FC<MainProps> = ({ tawsifCoin, usersFromFetchCall }: MainProps) => {
     </Container>
   );
 };
-
-export async function getServerSideProps() {
-  const blockchainResponse = await (await axios.get("/blockchain")).data; // make the api call to backend here
-
-  const usersResponse = await (await axios.get("/user")).data;
-
-  return {
-    props: {
-      tawsifCoin: blockchainResponse,
-      usersFromFetchCall: usersResponse,
-    },
-  };
-}
 
 export default Main;

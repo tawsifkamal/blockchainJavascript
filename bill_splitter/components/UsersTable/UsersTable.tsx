@@ -27,7 +27,7 @@ const UsersTable: FC<UsersTableProps> = ({
   const theme = useTheme();
   useEffect(() => {
     async function fetchData() {
-      const response = await (await axios.get("/user/getBalance")).data;
+      const response = await (await axios.get("api/user/getBalance")).data;
 
       setUsersWithBalance(response);
     }
